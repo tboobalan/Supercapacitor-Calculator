@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Boobalan's SuperCap Performance Calculator | Energy Storage Analysis</title>
+    <meta name="description" content="Dr. Boobalan's professional supercapacitor performance calculator. Analyze energy, power, current, discharge characteristics, and optimize series/parallel configurations.">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .input-section {
+            padding: 40px;
+            background: white;
+        }
+
+        .results-section {
+            padding: 40px;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .calc-group {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .calc-group h3 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+            background: white;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .unit {
+            padding: 12px 16px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            min-width: 60px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, var(--success-color), #10b981);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--border-radius);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(5, 150, 105, 0.3);
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .result-card h4 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .result-value {
+            font-size: 1rem;
+            color: var(--success-color);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+
+        .formula-display {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0 0 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #475569;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .results-section {
+                border-left: none;
+                border-top: 1px solid #e2e8f0;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .input-section, .results-section {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Dr. Boobalan's SuperCap Performance Calculator</h1>
+            <p>Professional Energy Storage Analysis & Optimization Tool</p>
+        </header>
+
+        <div class="calculator-grid">
+            <section class="input-section">
+                <h2 class="section-title">⚡ Input Parameters</h2>
+
+                <div class="calc-group">
+                    <h3>🔋 Basic Electrical Properties</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="capacitance">Capacitance (C)</label>
+                            <input type="number" id="capacitance" step="0.001" min="0" placeholder="Enter capacitance">
+                        </div>
+                        <div class="unit">F</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="voltage">Rated Voltage (V)</label>
+                            <input type="number" id="voltage" step="0.1" min="0" placeholder="Enter voltage">
+                        </div>
+                        <div class="unit">V</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="esr">ESR (Equivalent Series Resistance)</label>
+                            <input type="number" id="esr" step="0.0001" min="0" placeholder="Enter ESR">
+                        </div>
+                        <div class="unit">Ω</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="cell_weight">Cell Weight</label>
+                            <input type="number" id="cell_weight" step="0.1" min="0" placeholder="Enter weight">
+                        </div>
+                        <div class="unit">g</div>
+                    </div>
+                </div>
+
+                <div class="calc-group">
+                    <h3>📉 Discharge Analysis</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="discharge_current">Discharge Current (I)</label>
+                            <input type="number" id="discharge_current" step="0.1" min="0" placeholder="Enter current">
+                        </div>
+                        <div class="unit">A</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="initial_voltage">Initial Voltage (V₀)</label>
+                            <input type="number" id="initial_voltage" step="0.1" min="0" placeholder="Enter initial V">
+                        </div>
+                        <div class="unit">V</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="final_voltage">Final Voltage (Vf)</label>
+                            <input type="number" id="final_voltage" step="0.1" min="0" placeholder="Enter final V">
+                        </div>
+                        <div class="unit">V</div>
+                    </div>
+                </div>
+
+                <div class="calc-group">
+                    <h3>🔗 Series/Parallel Configuration</h3>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="num_series">Cells in Series</label>
+                            <input type="number" id="num_series" step="1" min="1" value="1" placeholder="Series count">
+                        </div>
+                        <div class="unit">pcs</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="num_parallel">Cells in Parallel</label>
+                            <input type="number" id="num_parallel" step="1" min="1" value="1" placeholder="Parallel count">
+                        </div>
+                        <div class="unit">pcs</div>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateAll()">
+                    🧮 Calculate All Parameters
+                </button>
+            </section>
+
+            <section class="results-section">
+                <h2 class="section-title">📊 Analysis Results</h2>
+
+                <div class="result-card">
+                    <h4>⚡ Energy Storage Capacity</h4>
+                    <div class="result-item">
+                        <span class="result-label">Stored Energy:</span>
+                        <span class="result-value" id="stored_energy">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Energy Density:</span>
+                        <span class="result-value" id="energy_density">-</span>
+                    </div>
+                    <div class="formula-display">
+                        E = ½CV²/3600 (Wh)
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>🔌 Power & Current Analysis</h4>
+                    <div class="result-item">
+                        <span class="result-label">Maximum Power:</span>
+                        <span class="result-value" id="max_power">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Maximum Current:</span>
+                        <span class="result-value" id="max_current">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Power Density:</span>
+                        <span class="result-value" id="power_density">-</span>
+                    </div>
+                    <div class="formula-display">
+                        P_max = V²/(4×ESR)<br>
+                        I_max = ½CV/(C×1s×ESR+1)
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>⏱️ Discharge Characteristics</h4>
+                    <div class="result-item">
+                        <span class="result-label">Discharge Time:</span>
+                        <span class="result-value" id="discharge_time">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Time Constant (τ):</span>
+                        <span class="result-value" id="time_constant">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Available Energy:</span>
+                        <span class="result-value" id="available_energy">-</span>
+                    </div>
+                    <div class="formula-display">
+                        t = C(V₀-Vf)/I<br>
+                        τ = C×ESR
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>🔗 System Configuration</h4>
+                    <div class="result-item">
+                        <span class="result-label">Configuration:</span>
+                        <span class="result-value" id="configuration">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total Capacitance:</span>
+                        <span class="result-value" id="total_capacitance">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">System Voltage:</span>
+                        <span class="result-value" id="total_voltage">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total ESR:</span>
+                        <span class="result-value" id="total_esr">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">System Energy:</span>
+                        <span class="result-value" id="total_energy">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Total Cells:</span>
+                        <span class="result-value" id="total_cells">-</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        function calculateAll() {
+            // Get input values
+            const C = parseFloat(document.getElementById('capacitance').value) || 0;
+            const V = parseFloat(document.getElementById('voltage').value) || 0;
+            const ESR = parseFloat(document.getElementById('esr').value) || 0;
+            const cell_weight = parseFloat(document.getElementById('cell_weight').value) || 0;
+            const I_discharge = parseFloat(document.getElementById('discharge_current').value) || 0;
+            const V_initial = parseFloat(document.getElementById('initial_voltage').value) || V;
+            const V_final = parseFloat(document.getElementById('final_voltage').value) || 0;
+            const n_series = parseInt(document.getElementById('num_series').value) || 1;
+            const n_parallel = parseInt(document.getElementById('num_parallel').value) || 1;
+
+            console.log('Inputs:', {C, V, ESR, cell_weight, I_discharge, V_initial, V_final, n_series, n_parallel});
+
+            // Energy Calculations
+            if (C > 0 && V > 0) {
+                const energy_wh = (0.5 * C * V * V) / 3600;
+                document.getElementById('stored_energy').textContent = formatValue(energy_wh, 'Wh');
+                
+                if (cell_weight > 0) {
+                    const energy_density = energy_wh / (cell_weight / 1000);
+                    document.getElementById('energy_density').textContent = formatValue(energy_density, 'Wh/kg');
+                } else {
+                    document.getElementById('energy_density').textContent = 'Enter cell weight';
+                }
+            }
+
+            // Power Calculations
+            if (V > 0 && ESR > 0) {
+                const max_power = (V * V) / (4 * ESR);
+                document.getElementById('max_power').textContent = formatValue(max_power, 'W');
+                
+                if (C > 0) {
+                    const max_current = (0.5 * C * V) / (C * 1 * ESR + 1);
+                    document.getElementById('max_current').textContent = formatValue(max_current, 'A');
+                }
+                
+                if (cell_weight > 0) {
+                    const power_density = max_power / (cell_weight / 1000);
+                    document.getElementById('power_density').textContent = formatValue(power_density, 'W/kg');
+                } else {
+                    document.getElementById('power_density').textContent = 'Enter cell weight';
+                }
+            }
+
+            // Discharge Calculations
+            if (C > 0 && I_discharge > 0 && V_initial > V_final) {
+                const discharge_time = (C * (V_initial - V_final)) / I_discharge;
+                document.getElementById('discharge_time').textContent = formatValue(discharge_time, 's');
+                
+                const available_energy = (0.5 * C * (V_initial * V_initial - V_final * V_final)) / 3600;
+                document.getElementById('available_energy').textContent = formatValue(available_energy, 'Wh');
+            }
+
+            // Time Constant
+            if (C > 0 && ESR > 0) {
+                const time_constant = C * ESR;
+                document.getElementById('time_constant').textContent = formatValue(time_constant, 's');
+            }
+
+            // Series/Parallel Configuration
+            if (C > 0 && V > 0 && n_series >= 1 && n_parallel >= 1) {
+                const total_C = (n_parallel * C) / n_series;
+                const total_V = n_series * V;
+                const total_ESR = (n_series * ESR) / n_parallel;
+                const total_energy = (0.5 * total_C * total_V * total_V) / 3600;
+                const total_cells = n_series * n_parallel;
+
+                document.getElementById('configuration').textContent = `${n_series}S${n_parallel}P`;
+                document.getElementById('total_capacitance').textContent = formatValue(total_C, 'F');
+                document.getElementById('total_voltage').textContent = formatValue(total_V, 'V');
+                document.getElementById('total_esr').textContent = formatValue(total_ESR, 'Ω');
+                document.getElementById('total_energy').textContent = formatValue(total_energy, 'Wh');
+                document.getElementById('total_cells').textContent = total_cells + ' cells';
+            }
+        }
+
+        function formatValue(value, unit) {
+            if (isNaN(value) || value === 0) return '-';
+            
+            // Special handling for power units
+            if (unit === 'W' || unit === 'W/kg') {
+                if (Math.abs(value) >= 1000000) {
+                    return (value / 1000000).toFixed(3) + ' M' + unit;
+                } else if (Math.abs(value) >= 1000) {
+                    return (value / 1000).toFixed(3) + ' k' + unit;
+                }
+            }
+            
+            // Special handling for current units
+            if (unit === 'A') {
+                if (Math.abs(value) >= 1000000) {
+                    return (value / 1000000).toFixed(3) + ' MA';
+                } else if (Math.abs(value) >= 1000) {
+                    return (value / 1000).toFixed(3) + ' kA';
+                }
+            }
+            
+            // Regular formatting
+            if (Math.abs(value) >= 100) {
+                return value.toFixed(1) + ' ' + unit;
+            } else if (Math.abs(value) >= 1) {
+                return value.toFixed(3) + ' ' + unit;
+            } else if (Math.abs(value) >= 0.001) {
+                return value.toFixed(6) + ' ' + unit;
+            } else {
+                return value.toExponential(3) + ' ' + unit;
+            }
+        }
+
+        // Auto-calculate on input change
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    clearTimeout(this.timer);
+                    this.timer = setTimeout(calculateAll, 500);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
